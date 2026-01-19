@@ -28,6 +28,21 @@ echo -e "${BLUE}║                 Xferant VPN Installer                       
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# Check if running in non-interactive mode (pipe)
+if [ ! -t 0 ]; then
+    echo -e "${RED}❌ NON-INTERACTIVE MODE DETECTED${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  Please download and run the script locally:${NC}"
+    echo ""
+    echo -e "${CYAN}curl -fsSL https://raw.githubusercontent.com/R3G1ST/vpn-system/main/install.sh -o install.sh${NC}"
+    echo -e "${CYAN}chmod +x install.sh${NC}"
+    echo -e "${CYAN}sudo ./install.sh${NC}"
+    echo ""
+    echo -e "${GREEN}Or use parameters:${NC}"
+    echo -e "${CYAN}curl -fsSL https://raw.githubusercontent.com/R3G1ST/vpn-system/main/install.sh | sudo bash -s -- yourdomain.com your@email.com${NC}"
+    exit 1
+fi
+
 # Check root
 if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}❌ Please run as root: sudo ./install.sh${NC}"
@@ -36,19 +51,44 @@ fi
 
 # Variables
 INSTALL_DIR="/opt/xferant-vpn"
-REPO_URL="https://github.com/xferant/vpn-system.git"
+REPO_URL="https://github.com/R3G1ST/vpn-system.git"
 
 log_info() { echo -e "${GREEN}✅ [INFO]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}⚠️ [WARN]${NC} $1"; }
 log_error() { echo -e "${RED}❌ [ERROR]${NC} $1"; }
 
+# Check if parameters provided
+if [ $# -eq 2 ]; then
+    DOMAIN="$1"
+    EMAIL="$2"
+    AUTO_MODE=true
+else
+    AUTO_MODE=false
+fi
+
 main() {
     log_info "Starting Xferant VPN automated installation..."
     
-    # Get user input
-    DOMAIN=""
-    EMAIL=""
+    if [ "$AUTO_MODE" = false ]; then
+        get_user_input
+    else
+        log_info "Auto mode: Domain=$DOMAIN, Email=$EMAIL"
+    fi
     
+    # Installation steps
+    check_system
+    install_dependencies
+    clone_repository
+    setup_environment
+    setup_ssl
+    start_services
+    finalize_installation
+    
+    log_info "🎉 Xferant VPN installed successfully!"
+    show_success_message
+}
+
+get_user_input() {
     echo -e "${CYAN}📝 Configuration Setup${NC}"
     echo ""
     
@@ -86,18 +126,6 @@ main() {
         log_info "Installation cancelled by user"
         exit 0
     fi
-    
-    # Installation steps
-    check_system
-    install_dependencies
-    clone_repository
-    setup_environment
-    setup_ssl
-    start_services
-    finalize_installation
-    
-    log_info "🎉 Xferant VPN installed successfully!"
-    show_success_message
 }
 
 check_system() {
@@ -240,7 +268,9 @@ start_services() {
     cd $INSTALL_DIR
     
     # Update nginx config with domain
-    sed -i "s/server_name _;/server_name $DOMAIN;/g" config/nginx.conf
+    if [ -f config/nginx.conf ]; then
+        sed -i "s/server_name _;/server_name $DOMAIN;/g" config/nginx.conf
+    fi
     
     # Start services
     docker-compose up -d
@@ -307,28 +337,28 @@ EOF
 
 show_success_message() {
     echo ""
-    echo -e "${GREEN}🎉 Xferant VPN успешно установлен!${NC}"
+    echo -e "${GREEN}🎉 Xferant VPN successfully installed!${NC}"
     echo ""
-    echo -e "${CYAN}🔗 Ссылки для доступа:${NC}"
-    echo -e "   Панель управления: https://$DOMAIN"
-    echo -e "   API сервер: https://$DOMAIN/api"
-    echo -e "   Статус сервисов: docker-compose ps"
+    echo -e "${CYAN}🔗 Access URLs:${NC}"
+    echo -e "   Control Panel: https://$DOMAIN"
+    echo -e "   API Server: https://$DOMAIN/api"
+    echo -e "   Service Status: docker-compose ps"
     echo ""
-    echo -e "${YELLOW}🔧 Команды управления:${NC}"
-    echo -e "   Запуск: systemctl start xferant-vpn"
-    echo -e "   Остановка: systemctl stop xferant-vpn"
-    echo -e "   Логи: docker-compose logs -f"
-    echo -e "   Резервное копирование: $INSTALL_DIR/scripts/backup.sh"
+    echo -e "${YELLOW}🔧 Management Commands:${NC}"
+    echo -e "   Start: systemctl start xferant-vpn"
+    echo -e "   Stop: systemctl stop xferant-vpn"
+    echo -e "   Logs: docker-compose logs -f"
+    echo -e "   Backup: $INSTALL_DIR/scripts/backup.sh"
     echo ""
-    echo -e "${BLUE}📚 Документация:${NC}"
-    echo -e "   GitHub: https://github.com/xferant/vpn-system"
-    echo -e "   Документация: $INSTALL_DIR/docs/"
+    echo -e "${BLUE}📚 Documentation:${NC}"
+    echo -e "   GitHub: https://github.com/R3G1ST/vpn-system"
+    echo -e "   Docs: $INSTALL_DIR/docs/"
     echo ""
-    echo -e "${PURPLE}⚠️ Важные шаги после установки:${NC}"
-    echo -e "   1. Настройте DNS запись для домена $DOMAIN"
-    echo -e "   2. Откройте панель и создайте первого пользователя"
-    echo -e "   3. Настройте платежные системы в админке"
-    echo -e "   4. Интегрируйте Telegram бота"
+    echo -e "${PURPLE}⚠️ Important next steps:${NC}"
+    echo -e "   1. Configure DNS for domain $DOMAIN"
+    echo -e "   2. Access panel and create first user"
+    echo -e "   3. Configure payment systems in admin panel"
+    echo -e "   4. Integrate Telegram bot"
     echo ""
 }
 
