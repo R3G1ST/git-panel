@@ -35,7 +35,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_SECRET}
-      - API_SECRET_KEY=${API_SECRET}
+      - API_SECRET_KEY=${API_SECRET_KEY}  # 🔧 ИСПРАВЛЕНО: было API_SECRET
     depends_on:
       - postgres
     volumes:
@@ -58,6 +58,8 @@ services:
 
   xray:
     image: teddysun/xray:latest
+    ports:
+      - "4443:4443"  # 🔧 ДОБАВЛЕНО: проброс порта 4443
     volumes:
       - xray_config:/etc/xray
     cap_add:
