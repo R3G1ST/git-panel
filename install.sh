@@ -58,7 +58,7 @@ get_user_input() {
     local input_domain=""
     while [ -z "$input_domain" ]; do
         echo -n "🌐 Enter your domain (e.g., vpn.yourdomain.com): "
-        read -r input_domain
+        read -r input_domain < /dev/tty
         if [ -z "$input_domain" ]; then
             log_error "Domain name cannot be empty"
         fi
@@ -69,7 +69,7 @@ get_user_input() {
     local input_email=""
     while [ -z "$input_email" ]; do
         echo -n "📧 Enter your email (for SSL certificates): "
-        read -r input_email
+        read -r input_email < /dev/tty
         if [ -z "$input_email" ]; then
             log_error "Email cannot be empty"
         elif [[ ! "$input_email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
@@ -87,7 +87,7 @@ get_user_input() {
     echo "   Directory: $INSTALL_DIR"
     echo ""
     echo -n "Proceed with installation? (y/N): "
-    read -r confirmation
+    read -r confirmation < /dev/tty
     if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
         log_info "Installation cancelled by user"
         exit 0
