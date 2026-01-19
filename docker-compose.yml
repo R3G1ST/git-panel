@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     networks:
       - xferant-network
+
   postgres:
     image: postgres:15-alpine
     environment:
@@ -23,6 +24,7 @@ services:
     restart: unless-stopped
     networks:
       - xferant-network
+
   backend:
     build:
       context: ./backend
@@ -36,6 +38,7 @@ services:
     restart: unless-stopped
     networks:
       - xferant-network
+
   frontend:
     build:
       context: ./frontend
@@ -47,6 +50,7 @@ services:
     restart: unless-stopped
     networks:
       - xferant-network
+
   xray:
     image: teddysun/xray:latest
     ports:
@@ -58,11 +62,13 @@ services:
     restart: unless-stopped
     networks:
       - xferant-network
+
 volumes:
   postgres_data:
     driver: local
   frontend_static:
     driver: local
+
 networks:
   xferant-network:
     driver: bridge
