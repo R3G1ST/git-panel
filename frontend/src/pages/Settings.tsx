@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Save, Database, Server, CreditCard, Shield } from 'lucide-react';
 
 const Settings: React.FC = () => {
@@ -18,7 +18,6 @@ const Settings: React.FC = () => {
   const saveSettings = async () => {
     setLoading(true);
     try {
-      // API call to save settings
       await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('Settings saved:', settings);
     } finally {
@@ -74,7 +73,7 @@ const Settings: React.FC = () => {
                   type="text"
                   value={settings.site_name}
                   onChange={(e) => setSettings({...settings, site_name: e.target.value})}
-                  className="input-field"
+                  className="input"
                 />
               </div>
               <div>
@@ -83,7 +82,7 @@ const Settings: React.FC = () => {
                   type="email"
                   value={settings.support_email}
                   onChange={(e) => setSettings({...settings, support_email: e.target.value})}
-                  className="input-field"
+                  className="input"
                 />
               </div>
             </div>
@@ -99,8 +98,8 @@ const Settings: React.FC = () => {
                 <input
                   type="number"
                   value={settings.default_traffic_limit / 1024 / 1024 / 1024}
-                  onChange={(e) => setSettings({...settings, default_traffic_limit: e.target.value * 1024 * 1024 * 1024})}
-                  className="input-field"
+                  onChange={(e) => setSettings({...settings, default_traffic_limit: Number(e.target.value) * 1024 * 1024 * 1024})}
+                  className="input"
                 />
               </div>
               <div>
@@ -111,7 +110,7 @@ const Settings: React.FC = () => {
                   type="number"
                   value={settings.max_connections_per_user}
                   onChange={(e) => setSettings({...settings, max_connections_per_user: parseInt(e.target.value)})}
-                  className="input-field"
+                  className="input"
                 />
               </div>
             </div>
