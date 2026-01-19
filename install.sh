@@ -170,11 +170,25 @@ install_dependencies() {
 clone_repository() {
     log_info "Cloning Xferant VPN repository..."
     
+    # FIX: Сначала создаем директорию
+    mkdir -p $INSTALL_DIR
+    
+    # Сохраняем текущую директорию
+    CURRENT_DIR=$(pwd)
+    
+    # Переходим в родительскую директорию
+    cd $(dirname $INSTALL_DIR)
+    
     # Clean up previous installation
     rm -rf $INSTALL_DIR
     
     # Clone repository
     git clone $REPO_URL $INSTALL_DIR
+    
+    # Возвращаемся обратно
+    cd $CURRENT_DIR
+    
+    # Переходим в директорию проекта
     cd $INSTALL_DIR
     
     # Удаляем старый docker-compose.prod.yml если он существует
@@ -186,6 +200,8 @@ clone_repository() {
 
 setup_environment() {
     log_info "Setting up environment..."
+    
+    cd $INSTALL_DIR
     
     # Generate safe passwords (without + and / characters)
     POSTGRES_PASSWORD=$(generate_safe_password 32 32)
@@ -230,13 +246,15 @@ EOF
 setup_ssl() {
     log_info "Setting up SSL certificates..."
     
+    cd $INSTALL_DIR
+    
     # Create SSL directories
-    mkdir -p $INSTALL_DIR/data/ssl/{certs,private}
+    mkdir -p data/ssl/{certs,private}
     
     # Generate self-signed certificate for initial setup
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout $INSTALL_DIR/data/ssl/private/key.pem \
-        -out $INSTALL_DIR/data/ssl/certs/cert.pem \
+        -keyout data/ssl/private/key.pem \
+        -out data/ssl/certs/cert.pem \
         -subj "/C=US/ST=State/L=City/O=Xferant/CN=$DOMAIN"
     
     log_info "SSL certificates generated"
@@ -305,12 +323,14 @@ DOCKERFILE
 finalize_installation() {
     log_info "Finalizing installation..."
     
+    cd $INSTALL_DIR
+    
     # Set proper permissions
-    chmod 600 $INSTALL_DIR/.env 2>/dev/null || true
-    chmod 600 $INSTALL_DIR/data/ssl/private/key.pem 2>/dev/null || true
+    chmod 600 .env 2>/dev/null || true
+    chmod 600 data/ssl/private/key.pem 2>/dev/null || true
     
     # Create backup directory
-    mkdir -p $INSTALL_DIR/backups
+    mkdir -p backups
     
     log_info "Installation finalized"
 }
