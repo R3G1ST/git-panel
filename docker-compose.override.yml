@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      args:
+        - GIT_COMMIT=${GIT_COMMIT:-latest}
+        - BUILD_DATE=${BUILD_DATE:-now}
+    labels:
+      - "com.xferant.description=Xferant VPN Backend"
+      - "com.xferant.version=1.0.0"
+      - "com.xferant.maintainer=R3G1ST"
+
+  updater:
+    environment:
+      - GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no
