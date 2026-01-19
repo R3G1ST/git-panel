@@ -1,0 +1,21 @@
+{
+  "name": "xferant-vpn",
+  "version": "1.0.0",
+  "description": "VPN Management System with Web Panel and Telegram Bot",
+  "scripts": {
+    "dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "build": "docker-compose build",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "backup": "./scripts/backup.sh",
+    "update": "./scripts/update.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xferant/vpn-system.git"
+  },
+  "keywords": ["vpn", "panel", "management", "telegram", "bot"],
+  "author": "Xferant Team",
+  "license": "MIT"
+}
